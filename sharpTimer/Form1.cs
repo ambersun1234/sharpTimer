@@ -13,16 +13,18 @@ namespace sharpTimer {
 		private bool init; // indicate first time
 		private bool check = false;
 		private Button currentTimeBtn;
-		private Button mypressBtn;
-		private Button myclearBtn;
+		private Button mypressBtn; // start, pause, continue
+		private Button myclearBtn; // clear
+        private Button stopwatch;  // init btn
+        private Button countdown;  // init btn
+        private Button myreinit;     // init btn
 		private Timer currentTimer;
 		private double systemTimer = 0;
+        private double bpSystemTimer = 0;
 		private double myinterval = 1;
-
-
-		private enum systemOrder {
-			increase, decrease
-		}; // indicate timer order
+        private List<Button> stopwatchList = new List<Button>();
+        private List<Button> countdownList = new List<Button>();
+        private List<Button> initList = new List<Button>();
 
 		public Form1() {
 			InitializeComponent();
@@ -30,8 +32,28 @@ namespace sharpTimer {
 			this.currentTimer = uitimer;
 			this.mypressBtn = pressBtn;
 			this.myclearBtn = clearbtn;
+            this.stopwatch = stopwatchBtn;
+            this.countdown = countdownBtn;
+            this.myreinit = reinitBtn;
+
+            this.initList.Add(this.stopwatch);
+            this.initList.Add(this.countdown);
+
+            this.stopwatchList.Add(this.mypressBtn);
+            this.stopwatchList.Add(this.myclearBtn);
+
+            // this.countdownList.Add(Button);
+
 			this.reinit();
 		}
+
+        private void setButtonVisible(List<Button> mylist, bool setter)
+        {
+            foreach (Button element in mylist)
+            {
+                element.Visible = setter;
+            }
+        }
 
 		private String convert() {
 			int tmp = Convert.ToInt32(this.systemTimer);
@@ -56,8 +78,10 @@ namespace sharpTimer {
 		private void reinit() {
 			this.currentTimer.Enabled = false;
 			this.currentTimer.Stop();
-			this.systemTimer = 0;
+			this.bpSystemTimer= 0;
+            this.systemTimer = this.bpSystemTimer;
 			this.init = true;
+            this.check = false;
 			this.currentTimeBtn.Enabled = false;
 			this.currentTimeBtn.Text = this.convert();
 			this.currentTimer.Interval = Convert.ToInt32(this.myinterval);
@@ -65,7 +89,11 @@ namespace sharpTimer {
 			this.pressBtn.BackColor = Color.LawnGreen;
 			this.myclearBtn.Text = "clear";
 			this.myclearBtn.BackColor = Color.LightPink;
-		}
+            
+            this.setButtonVisible(this.initList, true);
+            this.setButtonVisible(this.stopwatchList, false);
+            this.setButtonVisible(this.countdownList, false);
+        }
 
 		private void pressBtn_Click(object sender, EventArgs e) {
 			Color tmp;
@@ -99,7 +127,32 @@ namespace sharpTimer {
 		}
 
 		private void clearbtn_Click(object sender, EventArgs e) {
-			this.reinit();
-		}
-	}
+            this.currentTimer.Enabled = false;
+            this.currentTimer.Stop();
+            this.check = false;
+            this.systemTimer = this.bpSystemTimer;
+            this.currentTimeBtn.Text = this.convert();
+            this.mypressBtn.Text = "start";
+            this.mypressBtn.BackColor = Color.LawnGreen;
+        }
+
+        private void initChoose(object sender, EventArgs e)
+        {
+            string tmp = ((Button)sender).Text;
+
+            if (tmp == "stopwatch")
+            {
+                this.bpSystemTimer = 0;
+                this.setButtonVisible(this.stopwatchList, true);
+                this.setButtonVisible(this.initList, false);
+            } else if (tmp == "countdown")
+            {
+                this.setButtonVisible(this.countdownList, true);
+                this.setButtonVisible(this.initList, false);
+            } else
+            {
+                this.reinit();
+            }
+        }
+    }
 }
